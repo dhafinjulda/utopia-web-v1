@@ -25,7 +25,7 @@ export const galleryRouter = createTRPCRouter({
       },
       orderBy: { createdAt: "desc" },
       include: { image: true },
-      take: 9,
+      take: 3,
     });
   }),
 
@@ -38,7 +38,7 @@ export const galleryRouter = createTRPCRouter({
         createdBy: { connect: { id: Number(ctx.session.user.id) } },
         image: {
           create: {
-            path: input.image,
+            path: input.image ?? "",
           },
         },
       },

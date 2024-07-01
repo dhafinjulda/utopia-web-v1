@@ -77,6 +77,9 @@ export default function Home() {
     setEventDetail(event)
   }
 
+  //$Gallery Data
+  const { data: galleryData, isSuccess:gallerySuccessFetch } = api.gallery.getFront.useQuery();
+
   //#region components
   const HtmlHead = (): ReactNode => {
     return (
@@ -239,11 +242,7 @@ export default function Home() {
                 </div>
                 <div className="flex-1 flex flex-col gap-3">
                   <p className="font-bold text-white text-xl md:text-4xl">{eventDetail.name}</p>
-                  <p className="text-xs text-white md:text-2xl">
-                    {
-                      eventDetail.description
-                    }
-                  </p>
+                  <p className="text-xs text-white md:text-2xl">{eventDetail.description}</p>
                 </div>
               </div>
             )}
@@ -383,53 +382,27 @@ export default function Home() {
         <section className="bg-black p-12 md:p-20">
           <div className="w-full max-w-7xl mx-auto flex flex-col gap-12">
             <h2 className="text-4xl font-bold text-white text-center">Be a Part of Utopia Club</h2>
-            <div className="grid gap-20 md:grid-cols-3">
-              <div className="relative h-500px overflow-hidden group">
-                <Image
-                  src="/images/dummies/event/event0.png"
-                  alt=""
-                  fill
-                />
-                <div className="absolute top-0 left-0 right-0 bottom-0 p-8 text-center bg-black/40 transition translate-y-full group-hover:translate-y-0">
-                  <p className="text-4xl font-bold text-white">{"Connecting Community"}</p>
-                  <p className="text-3xl text-white pt-6">
-                    {
-                      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                    }
-                  </p>
-                </div>
+            {gallerySuccessFetch && (
+              <div className="grid gap-20 md:grid-cols-3">
+                {galleryData.map((gallery, index) => (
+                  <div className="relative h-500px overflow-hidden group" key={index}>
+                    <Image
+                      src={gallery.image.path}
+                      alt={gallery.name}
+                      fill
+                    />
+                    <div className="absolute top-0 left-0 right-0 bottom-0 p-8 text-center bg-black/40 transition translate-y-full group-hover:translate-y-0">
+                      <p className="text-4xl font-bold text-white">{gallery.name}</p>
+                      <p className="text-3xl text-white pt-6">
+                        {
+                          gallery.description
+                        }
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="relative h-500px overflow-hidden group">
-                <Image
-                  src="/images/dummies/event/event0.png"
-                  alt=""
-                  fill
-                />
-                <div className="absolute top-0 left-0 right-0 bottom-0 p-8 text-center bg-black/40 transition translate-y-full group-hover:translate-y-0">
-                  <p className="text-4xl font-bold text-white">{"Connecting Community"}</p>
-                  <p className="text-3xl text-white pt-6">
-                    {
-                      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                    }
-                  </p>
-                </div>
-              </div>
-              <div className="relative h-500px overflow-hidden group">
-                <Image
-                  src="/images/dummies/event/event0.png"
-                  alt=""
-                  fill
-                />
-                <div className="absolute top-0 left-0 right-0 bottom-0 p-8 text-center bg-black/40 transition translate-y-full group-hover:translate-y-0">
-                  <p className="text-4xl font-bold text-white">{"Connecting Community"}</p>
-                  <p className="text-3xl text-white pt-6">
-                    {
-                      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                    }
-                  </p>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </section>
       </main>

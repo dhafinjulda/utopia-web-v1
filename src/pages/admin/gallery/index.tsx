@@ -67,7 +67,7 @@ export default function AdminGalleries() {
     file: File | null;
   }
 
-  const [filePreview, setFilePreview] = useState<FilePreview|null>(null);
+  const [filePreview, setFilePreview] = useState<FilePreview[]>([]);
 
   const [alert, setAlert] = useState<{
     type: "default" | "destructive";
@@ -88,17 +88,18 @@ export default function AdminGalleries() {
 
     const promises = Array.from(files).map((file) => {
       const reader = new FileReader();
+
       return new Promise<{
-        name: string;
-        path: string;
-        progress: number;
-        file: File;
+        name: string
+        path: string
+        progress: number
+        file: File
       }>((resolve) => {
         reader.onload = (e) => {
           resolve({
             name: file.name,
             progress: 0,
-            path: (e.target?.result ?? "") as string,
+            path: (e.target?.result ?? '') as string,
             file,
           });
         };
@@ -107,18 +108,44 @@ export default function AdminGalleries() {
     });
 
     Promise.all(promises)
-      .then((result) => result.map((file) => setFilePreview(file)))
+      .then((result) => setFilePreview(result))
       .catch(console.error);
   };
 
   const handleUploadImage = async () => {
-    console.log("image", filePreview)
-    return await new Promise<string>((resolve, _) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.readAsDataURL(filePreview!.file!);
-    });
-  };
+    const imagePaths: string[] = [];
+
+    await new Promise((resolve) => {
+      filePreview.forEach(async (file, index) => {
+        if (file.file) {
+          // const formData = new FormData();
+          // formData.append("image", file.file);
+          //
+          // const result = await new Promise<{ data: string[] }>((resolve) => {
+          //   axios.post("/api/upload-event", formData, {
+          //     onUploadProgress: (progressEvent) => file.progress = progressEvent.loaded }
+          //   )
+          //   .then(({ data }) => setTimeout(() => resolve(data), 100))
+          //   .catch(console.error);
+          // });
+
+          const path = await new Promise<string>((resolve, _) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(file.file!);
+          });
+
+          imagePaths.push(path);
+        }
+
+        if (index === filePreview.length - 1) {
+          resolve(null);
+        }
+      })
+    })
+
+    return imagePaths;
+  }
 
   const handleSubmit = async (form: IGallery) => {
     if (galleryForm.getValues().id) submitPartnerUpdate(form).catch(console.error);
@@ -138,7 +165,7 @@ export default function AdminGalleries() {
           id: form.id,
           name: form.name,
           description: form.description,
-          image: imagePaths,
+          image: imagePaths[0]!,
         },
         {
           onSuccess: () => {
@@ -177,11 +204,11 @@ export default function AdminGalleries() {
         {
           name: form.name,
           description: form.description,
-          image: imagePaths,
+          image: imagePaths[0]!,
         },
         {
           onSuccess: () => {
-            showAlert("default", "Partner Created!");
+            showAlert("default", "Gallery Created!");
             refetch().catch(console.error);
             galleryForm.reset();
             handleCreateDialogVisibility(false);
@@ -189,7 +216,7 @@ export default function AdminGalleries() {
           },
           onError: (error) => {
             console.error(error);
-            showAlert("destructive", "Failed to create Partner!");
+            showAlert("destructive", "Failed to create Gallery!");
             setPartnerFormDialogBusy(false);
           },
         },
@@ -210,7 +237,7 @@ export default function AdminGalleries() {
       galleryForm.setValue("name", "");
       galleryForm.setValue("description", "");
       galleryForm.setValue("image", "");
-      setFilePreview(null);
+      setFilePreview([]);
     }
     setFormAction("Create");
     setGalleryFormDialogVisible(e);
@@ -223,12 +250,14 @@ export default function AdminGalleries() {
     galleryForm.setValue("image", partner.image.path);
     setFormAction("Edit");
 
-    setFilePreview({
-      name: partner.image.path,
-      path: partner.image.path,
-      progress: 100,
-      file: null,
-    });
+    setFilePreview([
+      {
+        name: partner.image.path,
+        path: partner.image.path,
+        progress: 100,
+        file: null,
+      }
+    ]);
 
     setGalleryFormDialogVisible(true);
   };
@@ -321,14 +350,14 @@ export default function AdminGalleries() {
                       <TableCell className="font-medium">{gallery.name}</TableCell>
                       <TableCell>
                         <div className="grid grid-cols-2 gap-3">
-                          {gallery.image &&
+                          {gallery.image && (
                             <Image
                               src={`${gallery.image.path ?? ""}`}
                               alt={`Image of ${gallery.name}`}
                               height={40}
                               width={40}
                             />
-                          }
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>{gallery.description}</TableCell>
@@ -405,7 +434,13 @@ export default function AdminGalleries() {
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <TextArea placeholder="e.g: Utopia Weeks" className="text-slate-400 bg-transparent border-slate-800" {...field} rows={5} maxLength={255} />
+                      <TextArea
+                        placeholder="e.g: Utopia Weeks"
+                        className="text-slate-400 bg-transparent border-slate-800"
+                        {...field}
+                        rows={5}
+                        maxLength={255}
+                      />
                     </FormControl>
                     <FormMessage></FormMessage>
                   </FormItem>
@@ -427,16 +462,18 @@ export default function AdminGalleries() {
                               onInput={handleChangeImages}
                             />
                             <div className="grid grid-cols-3 gap-3 h-20 w-full">
-                              {filePreview?.path && (
-                                <div className="relative">
+                              {filePreview.map((file, index) => (
+                                <div
+                                  className="relative"
+                                  key={index}>
                                   <Image
-                                    className="object-contain border border-slate-800 rounded"
-                                    src={filePreview.path}
-                                    alt={`Preview Gallery Image`}
+                                    className="object-contain border rounded"
+                                    src={file.path}
+                                    alt={`Preview Event Image (File ${index + 1} of ${filePreview.length})`}
                                     fill
                                   />
                                 </div>
-                              )}
+                              ))}
                             </div>
                           </>
                         </FormControl>
