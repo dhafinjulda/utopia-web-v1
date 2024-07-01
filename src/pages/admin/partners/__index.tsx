@@ -50,12 +50,12 @@
 // import { Input } from "~/components/ui/input"
 //
 // import {
-//   Form,
-//   FormControl,
-//   FormField,
-//   FormItem,
-//   FormLabel,
-//   FormMessage,
+//     Form,
+//     FormControl,
+//     FormField,
+//     FormItem,
+//     FormLabel,
+//     FormMessage,
 // } from "~/components/ui/form"
 //
 // import {
@@ -112,10 +112,10 @@
 //         description: z.string().optional(),
 //         images: z.array(z.string()).optional(),
 //       })
-//         .refine((data) => (Boolean(data.id) || Boolean(data.name?.length)), {
-//           message: 'Event Name field required',
-//           path: ['name'],
-//         })
+//       .refine((data) => (Boolean(data.id) || Boolean(data.name?.length)), {
+//         message: 'Event Name field required',
+//         path: ['name'],
+//       })
 //     ),
 //   });
 //
@@ -147,8 +147,8 @@
 //     });
 //
 //     Promise.all(promises)
-//       .then((result) => setFilePreview(result))
-//       .catch(console.error);
+//     .then((result) => setFilePreview(result))
+//     .catch(console.error);
 //   };
 //
 //   const handleUploadImage = async () => {
@@ -319,17 +319,17 @@
 //       <AdminLayout>
 //         <div className="flex h-full flex-col overflow-hidden p-4">
 //           <div className="py-4">
-//             <Breadcrumb>
-//               <BreadcrumbList>
-//                 <BreadcrumbItem>
-//                   <BreadcrumbLink href="/admin" className="text-slate-600">Home</BreadcrumbLink>
-//                 </BreadcrumbItem>
-//                 <BreadcrumbSeparator />
-//                 <BreadcrumbItem>
-//                   <BreadcrumbPage className="text-slate-400">Partners</BreadcrumbPage>
-//                 </BreadcrumbItem>
-//               </BreadcrumbList>
-//             </Breadcrumb>
+//           <Breadcrumb>
+//             <BreadcrumbList>
+//               <BreadcrumbItem>
+//                 <BreadcrumbLink href="/admin" className="text-slate-600">Home</BreadcrumbLink>
+//               </BreadcrumbItem>
+//               <BreadcrumbSeparator />
+//               <BreadcrumbItem>
+//                 <BreadcrumbPage className="text-slate-400">Partners</BreadcrumbPage>
+//               </BreadcrumbItem>
+//             </BreadcrumbList>
+//           </Breadcrumb>
 //             <h1 className="text-2xl font-bold text-slate-400">Partners</h1>
 //           </div>
 //           <div className="flex items-center justify-between pb-2 pt-6">
@@ -340,9 +340,9 @@
 //               onChange={(e) => setSearch(e.target.value)}
 //             />
 //             <Button
-//               className="px-4 border-2 border-utopia-admin-border bg-utopia-button-bg"
-//               onClick={() => setPartnerFormDialogVisible(true)}>
-//               Create
+//                 className="px-4 border-2 border-utopia-admin-border bg-utopia-button-bg"
+//                 onClick={() => setPartnerFormDialogVisible(true)}>
+//                 Create
 //             </Button>
 //           </div>
 //           <div className="overflow-hidden bg-utopia-admin-bg text-white">
@@ -358,48 +358,48 @@
 //               <TableBody className="overflow-auto border-r-slate-800">
 //                 {
 //                   partners?.length ?
-//                     partners.map((partner, index) => (
-//                       <TableRow key={index} className="border-slate-800 hover:bg-transparent">
-//                         <TableCell className="font-medium">{partner.name}</TableCell>
-//                         <TableCell>
-//                           <div className="grid grid-cols-2 gap-3">
-//                             {
-//                               partner.images.map((image, index) => (
-//                                 <Image
-//                                   key={index}
-//                                   src={`${image.path ?? ''}`}
-//                                   alt={`Image of ${partner.name}`}
-//                                   height={40}
-//                                   width={40}
-//                                 />
-//                               ))
-//                             }
-//                           </div>
-//                         </TableCell>
-//                         <TableCell>{partner.description}</TableCell>
-//                         <TableCell align="right">
-//                           <div className="flex items-center justify-end gap-3">
-//                             <Button className="bg-slate-50 p-3 hover:bg-slate-200" onClick={() => handleEditPartner(partner)}>
-//                               <BiMessageSquareEdit className="text-xl text-slate-600" />
-//                             </Button>
-//                             <Button title="Delete Event" className="bg-red-700 p-3 hover:bg-red-900" onClick={() => setPartnerToDelete(partner)}>
-//                               <BiTrash className="text-xl text-white-600" />
-//                             </Button>
-//                           </div>
-//                         </TableCell>
-//                       </TableRow>
-//                     ))
-//                     :
-//                     <TableRow className="hover:bg-transparent">
-//                       <TableCell colSpan={4} className="text-center">
-//                         <p className="text-slate-500 pb-4">Partner still empty. Create One</p>
-//                         <Button
-//                           className="px-4 border-2 border-utopia-admin-border bg-utopia-button-bg"
-//                           onClick={() => setPartnerFormDialogVisible(true)}>
-//                           Create
+//                   partners.map((partner, index) => (
+//                   <TableRow key={index} className="border-slate-800 hover:bg-transparent">
+//                     <TableCell className="font-medium">{partner.name}</TableCell>
+//                     <TableCell>
+//                       <div className="grid grid-cols-2 gap-3">
+//                         {
+//                           partner.images.map((image, index) => (
+//                             <Image
+//                               key={index}
+//                               src={`${image.path ?? ''}`}
+//                               alt={`Image of ${partner.name}`}
+//                               height={40}
+//                               width={40}
+//                             />
+//                           ))
+//                         }
+//                       </div>
+//                     </TableCell>
+//                     <TableCell>{partner.description}</TableCell>
+//                     <TableCell align="right">
+//                       <div className="flex items-center justify-end gap-3">
+//                         <Button className="bg-slate-50 p-3 hover:bg-slate-200" onClick={() => handleEditPartner(partner)}>
+//                           <BiMessageSquareEdit className="text-xl text-slate-600" />
 //                         </Button>
-//                       </TableCell>
-//                     </TableRow>
+//                         <Button title="Delete Event" className="bg-red-700 p-3 hover:bg-red-900" onClick={() => setPartnerToDelete(partner)}>
+//                             <BiTrash className="text-xl text-white-600" />
+//                         </Button>
+//                       </div>
+//                     </TableCell>
+//                   </TableRow>
+//                   ))
+//                   :
+//                   <TableRow className="hover:bg-transparent">
+//                     <TableCell colSpan={4} className="text-center">
+//                       <p className="text-slate-500 pb-4">Partner still empty. Create One</p>
+//                         <Button
+//                             className="px-4 border-2 border-utopia-admin-border bg-utopia-button-bg"
+//                             onClick={() => setPartnerFormDialogVisible(true)}>
+//                             Create
+//                         </Button>
+//                     </TableCell>
+//                   </TableRow>
 //                 }
 //               </TableBody>
 //             </Table>
@@ -409,76 +409,76 @@
 //
 //       <Dialog open={partnerFormDialogVisible} onOpenChange={handleCreateDialogVisibility}>
 //         <DialogContent className="bg-utopia-admin-bg text-slate-400 border-slate-800">
-//           <DialogHeader>
-//             <DialogTitle>Create Partner</DialogTitle>
-//             <DialogDescription>Fill in the form to create new Partner</DialogDescription>
-//           </DialogHeader>
-//           <Form {...partnerForm}>
-//             <form onSubmit={partnerForm.handleSubmit(handleSubmit)}>
-//               <FormField
-//                 control={partnerForm.control}
-//                 defaultValue=""
-//                 name="name"
-//                 render={({ field }) => (
-//                   <FormItem>
-//                     <FormLabel>Partner Name</FormLabel>
-//                     <FormControl>
-//                       <Input placeholder="e.g: Utopia Media Partner" className="text-slate-400 bg-transparent border-slate-800" {...field} />
-//                     </FormControl>
-//                     <FormMessage />
-//                   </FormItem>
-//                 )}
-//               />
-//               <FormField
-//                 control={partnerForm.control}
-//                 defaultValue=""
-//                 name="description"
-//                 render={({ field }) => (
-//                   <FormItem>
-//                     <FormLabel>Partner URL</FormLabel>
-//                     <FormControl>
-//                       <Input placeholder="e.g: https://partner.com" className="text-slate-400 bg-transparent border-slate-800" {...field} />
-//                     </FormControl>
-//                     <FormMessage />
-//                   </FormItem>
-//                 )}
-//               />
-//               <div className="grid grid-cols-3 gap-4">
-//                 <div className="col-span-2">
-//                   <FormField
-//                     defaultValue={undefined}
-//                     name="images"
-//                     render={(_) => (
-//                       <FormItem>
-//                         <FormLabel>Partner Image</FormLabel>
-//                         <FormControl>
-//                           <>
-//                             <input type="file" accept="image/png, image/jpeg, image/webp" onInput={handleChangeImages} />
-//                             <div className="grid grid-cols-3 gap-3 h-20 w-full">
-//                               {
-//                                 filePreview.map((file, index) => (
-//                                   <div className="relative" key={index}>
-//                                     <Image
-//                                       className="object-contain border border-slate-800 rounded"
-//                                       src={file.path}
-//                                       alt={`Preview Event Image (File ${index + 1} of ${filePreview.length})`}
-//                                       fill
-//                                     />
+//             <DialogHeader>
+//                 <DialogTitle>Create Partner</DialogTitle>
+//                 <DialogDescription>Fill in the form to create new Partner</DialogDescription>
+//             </DialogHeader>
+//             <Form {...partnerForm}>
+//                 <form onSubmit={partnerForm.handleSubmit(handleSubmit)}>
+//                     <FormField
+//                         control={partnerForm.control}
+//                         defaultValue=""
+//                         name="name"
+//                         render={({ field }) => (
+//                         <FormItem>
+//                             <FormLabel>Partner Name</FormLabel>
+//                             <FormControl>
+//                                 <Input placeholder="e.g: Utopia Media Partner" className="text-slate-400 bg-transparent border-slate-800" {...field} />
+//                             </FormControl>
+//                             <FormMessage />
+//                         </FormItem>
+//                         )}
+//                     />
+//                     <FormField
+//                         control={partnerForm.control}
+//                         defaultValue=""
+//                         name="description"
+//                         render={({ field }) => (
+//                         <FormItem>
+//                             <FormLabel>Partner URL</FormLabel>
+//                             <FormControl>
+//                                 <Input placeholder="e.g: https://partner.com" className="text-slate-400 bg-transparent border-slate-800" {...field} />
+//                             </FormControl>
+//                             <FormMessage />
+//                         </FormItem>
+//                         )}
+//                     />
+//                     <div className="grid grid-cols-3 gap-4">
+//                       <div className="col-span-2">
+//                       <FormField
+//                           defaultValue={undefined}
+//                           name="images"
+//                           render={(_) => (
+//                           <FormItem>
+//                               <FormLabel>Partner Image</FormLabel>
+//                               <FormControl>
+//                                 <>
+//                                   <input type="file" accept="image/png, image/jpeg, image/webp" onInput={handleChangeImages} />
+//                                   <div className="grid grid-cols-3 gap-3 h-20 w-full">
+//                                     {
+//                                       filePreview.map((file, index) => (
+//                                       <div className="relative" key={index}>
+//                                         <Image
+//                                           className="object-contain border border-slate-800 rounded"
+//                                           src={file.path}
+//                                           alt={`Preview Event Image (File ${index + 1} of ${filePreview.length})`}
+//                                           fill
+//                                         />
+//                                       </div>
+//                                       ))
+//                                   }
 //                                   </div>
-//                                 ))
-//                               }
-//                             </div>
-//                           </>
-//                         </FormControl>
-//                         <FormMessage />
-//                       </FormItem>
-//                     )}
-//                   />
-//                 </div>
-//               </div>
-//               <Button type="submit" className="mt-8" disabled={partnerFormDialogBusy}>Submit</Button>
-//             </form>
-//           </Form>
+//                                 </>
+//                               </FormControl>
+//                               <FormMessage />
+//                           </FormItem>
+//                           )}
+//                       />
+//                       </div>
+//                     </div>
+//                     <Button type="submit" className="mt-8" disabled={partnerFormDialogBusy}>Submit</Button>
+//                 </form>
+//             </Form>
 //         </DialogContent>
 //       </Dialog>
 //
@@ -500,18 +500,18 @@
 //
 //       {
 //         alert.message && (
-//           <div className="fixed top-2 left-2 right-2 p-2 z-[9999]">
-//             <Alert className="w-max ml-auto" variant={alert.type}>
-//               <AlertTitle>{alert.message}</AlertTitle>
-//             </Alert>
-//           </div>
+//         <div className="fixed top-2 left-2 right-2 p-2 z-[9999]">
+//           <Alert className="w-max ml-auto" variant={alert.type}>
+//             <AlertTitle>{alert.message}</AlertTitle>
+//           </Alert>
+//         </div>
 //         )
 //       }
 //     </>
 //   );
 // }
 
-export default function PartnerOld(){
+export default function Partner(){
   return (
     <div>
 
