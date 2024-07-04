@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev -p 4100",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 8100",
     "vercel-build": "prisma generate && prisma db push && node --loader ts-node/esm prisma/seed.ts && next build",
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate",
