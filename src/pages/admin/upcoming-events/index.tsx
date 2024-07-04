@@ -399,10 +399,10 @@ export default function AdminEvents() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Event Date</FormLabel>
-                    <Popover>
+                    <Popover modal={true}>
                       <PopoverTrigger asChild>
                         <FormControl>
-                          <Button className="text-slate-400 bg-transparent border-slate-800"
+                          <Button className="flex items-center gap-2 w-full text-slate-400 bg-transparent border-slate-800"
                             variant={"outline"}
                             // className={cn(
                             //   "w-[240px] pl-3 text-left font-normal",

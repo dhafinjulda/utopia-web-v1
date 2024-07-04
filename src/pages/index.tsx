@@ -1,15 +1,24 @@
+import Head from "next/head";
 import Image from "next/image";
-import React, { type ReactNode, useEffect, useState } from "react";
+import React, { type ReactNode, useEffect, useRef, useState } from "react";
 
 import { api } from "~/utils/api";
+import { type EventWithImages } from "~/server/api/routers/event";
 
+import { format } from "date-fns";
+
+import HeaderDefault from "~/components/HeaderDefault";
+import ButtonDefault from "~/components/button/button-default";
 import { Carousel, CarouselContent, CarouselItem } from "~/components/ui/carousel";
 
-import { type EventWithImages } from "~/server/api/routers/event";
-import HeaderDefault from "~/components/HeaderDefault";
-import Head from "next/head";
-import ButtonDefault from "~/components/button/button-default";
-import { format } from "date-fns";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
+
+// Register the ScrollTrigger plugin with GSAP
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(useGSAP, ScrollTrigger);
+}
 
 type eventWithImagesAndId = {
   image: string;
@@ -43,39 +52,46 @@ export default function Home() {
   });
   // const { data: partners } = api.partner.get.useQuery();
 
-  const [eventHero, setEventHero] = useState(DEFAULT_EVENT.images.map((image) => { return {
-    image: image.path,
-    id: DEFAULT_EVENT.id
-  }}));
+  const [eventHero, setEventHero] = useState(
+    DEFAULT_EVENT.images.map((image) => {
+      return {
+        image: image.path,
+        id: DEFAULT_EVENT.id,
+      };
+    }),
+  );
 
-  const [eventDetail, setEventDetail] = useState<EventWithImages>()
+  const [eventDetail, setEventDetail] = useState<EventWithImages>();
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
     const eventImages =
       events?.data.reduce((carry: eventWithImagesAndId[], event: EventWithImages) => {
-        return [...carry, ...event.images.map((image) => {
-          return {
-            image: image.path,
-            id: event.id
-          }
-        })];
+        return [
+          ...carry,
+          ...event.images.map((image) => {
+            return {
+              image: image.path,
+              id: event.id,
+            };
+          }),
+        ];
       }, []) ?? [];
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     setEventHero(eventImages);
   }, [events]);
 
   useEffect(() => {
-    if (events && !eventDetail){
-      events.data.length > 0 && setEventDetail(events.data[0])
+    if (events && !eventDetail) {
+      events.data.length > 0 && setEventDetail(events.data[0]);
     }
   }, [eventDetail, events]);
 
   const handleEventDetailChange = (id: number) => {
-    if (!events) return
+    if (!events) return;
     const event = events.data.find((event) => event.id === id);
-    setEventDetail(event)
-  }
+    setEventDetail(event);
+  };
 
   //$Gallery Data
   const { data: galleryData, isSuccess:gallerySuccessFetch } = api.gallery.getFront.useQuery();
@@ -90,7 +106,7 @@ export default function Home() {
   };
 
   const UpcomingEvents = (): ReactNode => {
-    const { data, isSuccess } = api.upcomingEvent.getFront.useQuery({limit: 10, page: 1});
+    const { data, isSuccess } = api.upcomingEvent.getFront.useQuery({ limit: 10, page: 1 });
 
     return (
       <div className="rounded-3xl bg-white/20 w-96 overflow-hidden">
@@ -127,9 +143,9 @@ export default function Home() {
                 </div>
                 <div className="w-20">
                   <p className="text-2xl text-white">
-                    <strong>{format(item.date, 'd MMM')}</strong>
+                    <strong>{format(item.date, "d MMM")}</strong>
                   </p>
-                  <p className="text-2xl text-white">{format(item.date, 'y')}</p>
+                  <p className="text-2xl text-white">{format(item.date, "y")}</p>
                 </div>
               </div>
             </div>
@@ -139,12 +155,64 @@ export default function Home() {
   };
   //#endregion
 
+  //#region parallax
+  const container = useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      const sections = gsap.utils.toArray("section[id]");
+
+      // we'll create a ScrollTrigger for each section just to track when each section's top hits the top of the viewport (we only need this for snapping)
+      const sectionTops = sections.map((section) =>
+        ScrollTrigger.create({
+          trigger: section as HTMLElement,
+          start: "top top",
+        }),
+      );
+
+      sections.forEach((section) => {
+        ScrollTrigger.create({
+          trigger: section as HTMLElement,
+          // if it's shorter than the viewport, we prefer to pin it at the top
+          start: () =>
+            (section as HTMLElement).offsetHeight < window.innerHeight
+              ? "top top"
+              : "bottom bottom",
+          pin: true,
+          pinSpacing: false,
+        });
+      });
+
+      ScrollTrigger.create({
+        snap: {
+          snapTo: (progress, self) => {
+            if (!self) return 0;
+            // an Array of all the starting scroll positions. We do this on each scroll to make sure it's totally responsive. Starting positions may change when the user resizes the viewport
+            const panelStarts = sectionTops.map((sectionTop) => sectionTop.start);
+            // find the closest one
+            const snapScroll = gsap.utils.snap(panelStarts, self.scroll());
+            // snapping requires a progress value, so convert the scroll position into a normalized progress value between 0 and 1
+            return gsap.utils.normalize(0, ScrollTrigger.maxScroll(window), snapScroll);
+          },
+          duration: 0.5,
+        },
+      });
+    },
+    { scope: container },
+  );
+  //#endregion
+
   return (
     <>
       <HtmlHead />
       <HeaderDefault />
-      <main className="w-full overflow-hidden">
-        <section className="relative bg-black py-20 md:min-h-screen">
+      <main
+        ref={container}
+        className="w-full overflow-hidden bg-black">
+        <section
+          id="welcome"
+          // ref={welcomeRef}
+          className="box last-of-type:relative bg-black py-20 min-h-screen z-10">
           <div className="relative flex w-full max-w-7xl mx-auto p-12 z-10">
             <div className="flex-1 flex flex-col gap-12">
               <div className="pt-10">
@@ -177,7 +245,10 @@ export default function Home() {
             fill
           />
         </section>
-        <section className="bg-black p-12 md:min-h-screen md:p-20">
+        <section
+          id="about"
+          // ref={aboutRef}
+          className="box relative bg-black p-12 pt-28 min-h-screen md:p-20 md:pt-36 z-20">
           <div className="w-full mx-auto max-w-7xl flex flex-col gap-8">
             <h2 className="text-4xl font-bold text-white">Meet Utopia club</h2>
             <p className="text-xl text-white md:text-2xl">
@@ -196,9 +267,11 @@ export default function Home() {
             </div>
           </div>
         </section>
-        <section className="relative md:min-h-screen">
+        <section
+          id="activities"
+          className="relative min-h-screen z-30">
           <div className="relative flex flex-col gap-12 z-10">
-            <h2 className="text-4xl font-bold text-white text-center w-full max-w-7xl mx-auto p-12 pb-0 md:p-20 md:pb-0">
+            <h2 className="text-4xl font-bold text-white text-center w-full max-w-7xl mx-auto p-12 pt-28 pb-0 md:p-20 md:pb-0">
               Activities and Events
             </h2>
             <Carousel
@@ -255,10 +328,14 @@ export default function Home() {
             fill
           />
         </section>
-        <section className="bg-black flex justify-center p-12 md:hidden">
+        <section
+          id="events"
+          className="bg-black flex justify-center p-12 pt-28 min-h-screen md:hidden">
           <UpcomingEvents />
         </section>
-        <section className="relative bg-black p-8 md:p-20">
+        <section
+          id="foundation"
+          className="relative bg-black p-8 pt-28 min-h-screen md:p-20">
           <div className="w-full max-w-7xl mx-auto">
             <div className="relative">
               <div className="flex-1 flex flex-col gap-8 relative z-10 pr-10">
@@ -309,7 +386,9 @@ export default function Home() {
             </div>
           </div>
         </section>
-        <section className="bg-black p-12 md:p-20">
+        <section
+          id="network"
+          className="bg-black p-12 pt-28 min-h-screen md:p-20">
           <div className="w-full max-w-7xl mx-auto">
             <h2 className="text-4xl font-bold text-white text-center">Our Network</h2>
             <div className="p-8">
@@ -379,8 +458,10 @@ export default function Home() {
             */}
           </div>
         </section>
-        <section className="bg-black p-12 md:p-20">
-          <div className="w-full max-w-7xl mx-auto flex flex-col gap-12">
+        <section
+          id="cta"
+          className="flex flex-col bg-black p-12 pt-28 min-h-screen md:p-20">
+          <div className="grow w-full max-w-7xl mx-auto flex flex-col gap-12">
             <h2 className="text-4xl font-bold text-white text-center">Be a Part of Utopia Club</h2>
             {gallerySuccessFetch && (
               <div className="grid gap-20 md:grid-cols-3">
@@ -404,79 +485,77 @@ export default function Home() {
               </div>
             )}
           </div>
-        </section>
-      </main>
-      <footer className="bg-black p-8">
-        <div className="w-full max-w-7xl mx-auto flex flex-wrap items-center gap-2">
-          <div className="grow basis-full order-2 md:order-1 md:basis-auto">
-            <div className="relative aspect-video md:h-16">
-              <Image
-                src="/images/logo-utopia-full.png"
-                alt=""
-                fill
-                objectFit="contain"
-              />
-            </div>
-          </div>
-          <div className="flex flex-col gap-4 order-1 md:order-2">
-            <div className="flex flex-wrap items-center justify-center gap-8 w-full mx-auto max-w-7xl">
-              <a
-                href="x.com"
-                target="_blank"
-                className="block">
+          <div className="w-full max-w-7xl mx-auto flex flex-wrap items-center gap-2 pt-12 md:pt-20">
+            <div className="grow basis-full order-2 md:order-1 md:basis-auto">
+              <div className="relative aspect-video md:h-16">
                 <Image
-                  src="/images/social/social-x-white.png"
-                  alt="twitter icon"
-                  width={30}
-                  height={30}
+                  src="/images/logo-utopia-full.png"
+                  alt=""
+                  fill
+                  objectFit="contain"
                 />
-              </a>
-              <a
-                href="discord.com"
-                target="_blank"
-                className="block">
-                <Image
-                  src="/images/social/social-discord-white.png"
-                  alt="discord icon"
-                  width={30}
-                  height={30}
-                />
-              </a>
-              <a
-                href="instagram.com"
-                target="_blank"
-                className="block">
-                <Image
-                  src="/images/social/social-ig-white.png"
-                  alt="instagram icon"
-                  width={30}
-                  height={30}
-                />
-              </a>
-              <a
-                href="whatsapp.com"
-                target="_blank"
-                className="block">
-                <Image
-                  src="/images/social/social-wa-white.png"
-                  alt="whatsapp icon"
-                  width={30}
-                  height={30}
-                />
-              </a>
-              <div className="relative text-center basis-full md:basis-auto">
-                <ButtonDefault className="w-44 h-12">Connect With Us</ButtonDefault>
               </div>
             </div>
-            <p className="text-sm font-bold text-white text-right hidden md:block">
+            <div className="flex flex-col gap-4 order-1 md:order-2">
+              <div className="flex flex-wrap items-center justify-center gap-8 w-full mx-auto max-w-7xl">
+                <a
+                  href="x.com"
+                  target="_blank"
+                  className="block">
+                  <Image
+                    src="/images/social/social-x-white.png"
+                    alt="twitter icon"
+                    width={30}
+                    height={30}
+                  />
+                </a>
+                <a
+                  href="discord.com"
+                  target="_blank"
+                  className="block">
+                  <Image
+                    src="/images/social/social-discord-white.png"
+                    alt="discord icon"
+                    width={30}
+                    height={30}
+                  />
+                </a>
+                <a
+                  href="instagram.com"
+                  target="_blank"
+                  className="block">
+                  <Image
+                    src="/images/social/social-ig-white.png"
+                    alt="instagram icon"
+                    width={30}
+                    height={30}
+                  />
+                </a>
+                <a
+                  href="whatsapp.com"
+                  target="_blank"
+                  className="block">
+                  <Image
+                    src="/images/social/social-wa-white.png"
+                    alt="whatsapp icon"
+                    width={30}
+                    height={30}
+                  />
+                </a>
+                <div className="relative text-center basis-full md:basis-auto">
+                  <ButtonDefault className="w-44 h-12">Connect With Us</ButtonDefault>
+                </div>
+              </div>
+              <p className="text-sm font-bold text-white text-right hidden md:block">
+                COPYRIGHT UTOPIA FAMILY © ALL RIGHTS RESERVED 2023
+              </p>
+            </div>
+            <p className="text-sm font-bold text-white text-right order-3 block md:hidden">
               COPYRIGHT UTOPIA FAMILY © ALL RIGHTS RESERVED 2023
             </p>
           </div>
-          <p className="text-sm font-bold text-white text-right order-3 block md:hidden">
-            COPYRIGHT UTOPIA FAMILY © ALL RIGHTS RESERVED 2023
-          </p>
-        </div>
-      </footer>
+        </section>
+      </main>
     </>
   );
 }
