@@ -1,17 +1,23 @@
 import Head from "next/head";
 import Image from "next/image";
-import React, {type ReactNode, useEffect, useState} from "react";
+import React, { type ReactNode, useEffect, useState } from "react";
 
-import {api} from "~/utils/api";
-import {type EventWithImages} from "~/server/api/routers/event";
+import { api } from "~/utils/api";
+import { type EventWithImages } from "~/server/api/routers/event";
 
-import {format} from "date-fns";
+import { format } from "date-fns";
 
 import HeaderDefault from "~/components/HeaderDefault";
 import ButtonDefault from "~/components/button/button-default";
 import Link from "next/link";
-import {Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious,} from "~/components/ui/carousel";
-import type {GalleryWithImage} from "~/server/api/routers/news";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "~/components/ui/carousel";
+import type { GalleryWithImage } from "~/server/api/routers/news";
 
 type eventWithImagesAndId = {
   image: string;
@@ -28,29 +34,31 @@ export default function Home() {
   const [eventHero, setEventHero] = useState<eventWithImagesAndId[][]>();
   const [newsHero, setNewsHero] = useState<eventWithImagesAndId[][]>();
   const [eventDetail, setEventDetail] = useState<EventWithImages | null>(null);
-  // const [dataPerColumn, setDataPerColumn] = useState(1);
-  // const isPhoneSize = () => window.innerWidth <= 768;
-  //
-  // useEffect(() => {
-  //   // Define a function to handle window resize
-  //   const handleResize = () => {
-  //     if (isPhoneSize()) {
-  //       setDataPerColumn(7);
-  //     } else {
-  //       setDataPerColumn(7); // Or set to any other default value you prefer
-  //     }
-  //   };
-  //
-  //   document.addEventListener("readystatechange", handleResize);
-  //
-  //   // Add event listener for window resize
-  //   window.addEventListener("resize", handleResize);
-  //
-  //   // Cleanup event listener on component unmount
-  //   return () => {
-  //     window.removeEventListener("resize", handleResize);
-  //   };
-  // }, []);
+  const [dataPerColumn, setDataPerColumn] = useState(1);
+  const [windowWidth, setWindowWidth] = useState(0);
+  const isPhoneSize = () => window.innerWidth <= 768;
+
+  useEffect(() => {
+    // Define a function to handle window resize
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+      if (isPhoneSize()) {
+        setDataPerColumn(2);
+      } else {
+        setDataPerColumn(4); // Or set to any other default value you prefer
+      }
+    };
+
+    document.addEventListener("readystatechange", handleResize);
+
+    // Add event listener for window resize
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   const { data: news } = api.news.getFront.useQuery();
   const [galleryDataDetail, setGalleryDataDetail] =
@@ -302,21 +310,44 @@ export default function Home() {
                     {eventHero.map((image, index) => (
                       <CarouselItem
                         key={index}
-                        className="items-center">
-                        <div className={`flex flex-wrap w-full ${image.length < 2 ? 'justify-center': ''} ${image.length < 4 ? 'md:justify-center' : ''}`}>
+                        className="items-center justify-center pl-0">
+                        <div
+                          className={`grid grid-cols-${Math.min(Math.ceil(image.length / 2), dataPerColumn)} gap-4`}
+                          style={{
+                            paddingLeft:
+                              ((windowWidth / dataPerColumn) *
+                                (dataPerColumn -
+                                  Math.min(
+                                    Math.ceil(image.length / 2),
+                                    dataPerColumn,
+                                  ))) /
+                                2 +
+                              "px",
+                            paddingRight:
+                              ((windowWidth / dataPerColumn) *
+                                (dataPerColumn -
+                                  Math.min(
+                                    Math.ceil(image.length / 2),
+                                    dataPerColumn,
+                                  ))) /
+                                2 +
+                              "px",
+                          }}>
                           {image.map((img, index) => (
                             <div
                               key={index}
-                              className="p-1 md:p-3 w-[50%] md:w-[25%]">
-                              <Image
-                                alt="Event"
-                                src={img.image}
-                                className="bg-slate-200 cursor-pointer aspect-square m-auto w-full h-full object-cover"
-                                height={0}
-                                width={0}
-                                loading="eager"
-                                onClick={() => handleEventDetailChange(img.id)}
-                              />
+                              className="flex items-center justify-center aspect-square">
+                              <button
+                                className="relative h-full w-full"
+                                onClick={() => handleEventDetailChange(img.id)}>
+                                <Image
+                                  alt="Event"
+                                  src={img.image}
+                                  className="bg-slate-200 object-cover"
+                                  loading="eager"
+                                  fill
+                                />
+                              </button>
                             </div>
                           ))}
                         </div>
@@ -333,9 +364,7 @@ export default function Home() {
                       <button
                         className="absolute top-6 left-6 flex items-center justify-center h-12 w-12"
                         onClick={() => setEventDetail(null)}>
-                        <span className="text-white text-[32px] md:text-[64px]">
-                          &times;
-                        </span>
+                        <span className="text-white text-[42px]">&times;</span>
                       </button>
                       <div className="flex flex-col md:flex-row items-center justify-center gap-12 h-full w-full overflow-auto">
                         <img
@@ -374,24 +403,45 @@ export default function Home() {
                       <CarouselItem
                         key={index}
                         className={`items-center`}>
-                        <div className={`flex flex-wrap w-full ${news.length < 2 ? 'justify-center': ''} ${news.length < 4 ? 'md:justify-center' : ''}`}>
-                          {news.map((img, index) => {
-                            console.log(news)
-                            return  (
-                              <div
-                                key={index}
-                                className="p-1 md:p-3 w-[50%] md:w-[25%]">
+                        <div
+                          className={`grid grid-cols-${Math.min(Math.ceil(news.length / 2), dataPerColumn)} gap-4`}
+                          style={{
+                            paddingLeft:
+                              ((windowWidth / dataPerColumn) *
+                                (dataPerColumn -
+                                  Math.min(
+                                    Math.ceil(news.length / 2),
+                                    dataPerColumn,
+                                  ))) /
+                                2 +
+                              "px",
+                            paddingRight:
+                              ((windowWidth / dataPerColumn) *
+                                (dataPerColumn -
+                                  Math.min(
+                                    Math.ceil(news.length / 2),
+                                    dataPerColumn,
+                                  ))) /
+                                2 +
+                              "px",
+                          }}>
+                          {news.map((img, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center justify-center aspect-square">
+                              <button
+                                className="relative h-full w-full"
+                                onClick={() => handleNewsDetailChange(img.id)}>
                                 <Image
                                   alt="Event"
                                   src={img.image}
-                                  className="bg-slate-200 cursor-pointer aspect-square m-auto w-full h-full object-cover"
-                                  height={0}
-                                  width={0}
-                                  onClick={() => handleNewsDetailChange(img.id)}
+                                  className="bg-slate-200 object-cover"
+                                  loading="eager"
+                                  fill
                                 />
-                              </div>
-                            )
-                          })}
+                              </button>
+                            </div>
+                          ))}
                         </div>
                       </CarouselItem>
                     ))}
@@ -406,9 +456,7 @@ export default function Home() {
                       <button
                         className="absolute top-6 left-6 flex items-center justify-center h-12 w-12"
                         onClick={() => setGalleryDataDetail(null)}>
-                        <span className="text-white text-[32px] md:text-[64px]">
-                          &times;
-                        </span>
+                        <span className="text-white text-[42px]">&times;</span>
                       </button>
                       <div className="flex flex-col md:flex-row items-center justify-center gap-12 h-full w-full overflow-auto">
                         <img
